@@ -18,7 +18,7 @@ const app = express()
 /* ---------------- MIDDLEWARE ---------------- */
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: process.env.CLIENT_URL || "http://localhost:5173",
   credentials: true
 }))
 
@@ -31,8 +31,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,      // ✅ required for localhost
-      sameSite: "lax"     // ✅ important
+      secure: process.env.NODE_ENV === "production", // ✅ required for production
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax" // ✅ important for cross-site cookies
     }
   })
 )
@@ -64,9 +64,9 @@ app.get(
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
     if (!req.user.role) {
-      return res.redirect("http://localhost:5173/select-role")
+      return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
     }
-    return res.redirect("http://localhost:5173/dashboard")
+    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard`)
   }
 )
 
@@ -82,9 +82,9 @@ app.get(
   passport.authenticate("github", { failureRedirect: "/" }),
   (req, res) => {
     if (!req.user.role) {
-      return res.redirect("http://localhost:5173/select-role")
+      return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
     }
-    return res.redirect("http://localhost:5173/dashboard")
+    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard`)
   }
 )
 

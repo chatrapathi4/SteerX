@@ -42,7 +42,7 @@ export default function AddCertificate() {
       formData.append("date", date)
       formData.append("image", image)
 
-      const res = await fetch("http://localhost:5000/certificate/add", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/certificate/add`, {
         method: "POST",
         body: formData,
         credentials: "include"

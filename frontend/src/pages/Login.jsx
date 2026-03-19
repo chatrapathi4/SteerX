@@ -75,7 +75,7 @@ export default function Login() {
 
         {/* GOOGLE */}
         <button
-          onClick={() => window.location.href = "http://localhost:5000/auth/google"}
+          onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/google`}
           style={{
             width: "260px",
             padding: "14px",
@@ -93,7 +93,7 @@ export default function Login() {
 
         {/* GITHUB */}
         <button
-          onClick={() => window.location.href = "http://localhost:5000/auth/github"}
+          onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/github`}
           style={{
             width: "260px",
             padding: "14px",

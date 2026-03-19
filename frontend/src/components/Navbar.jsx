@@ -9,7 +9,7 @@ export default function Navbar({ loggedIn = false }) {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    fetch("http://localhost:5000/auth/user", {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/user`, {
       credentials: "include"
     })
       .then(res => res.json())
@@ -21,7 +21,7 @@ export default function Navbar({ loggedIn = false }) {
   }, [])
 
   const logout = async () => {
-    await fetch("http://localhost:5000/auth/logout", {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/logout`, {
       method: "GET",
       credentials: "include"
     })
