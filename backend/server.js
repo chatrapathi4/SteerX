@@ -15,7 +15,7 @@ const Opportunity = require("./models/Opportunity")
 const upload = multer()
 const app = express()
 
-app.set("trust proxy", 1)
+app.set("trust proxy", true)
 
 /* ---------------- MIDDLEWARE ---------------- */
 
