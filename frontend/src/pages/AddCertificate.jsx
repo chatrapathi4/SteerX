@@ -42,7 +42,7 @@ export default function AddCertificate() {
       formData.append("date", date)
       formData.append("image", image)
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/certificate/add`, {
+      const res = await fetch(`${import.meta.env.PROD ? "" : "http://localhost:5000"}/certificate/add`, {
         method: "POST",
         body: formData,
         credentials: "include"
@@ -113,7 +113,7 @@ export default function AddCertificate() {
             type="text"
             placeholder="Title"
             value={title}
-            onChange={(e)=>setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.target.value)}
             style={inputStyle}
           />
 
@@ -122,7 +122,7 @@ export default function AddCertificate() {
             type="text"
             placeholder="Event Name"
             value={event}
-            onChange={(e)=>setEvent(e.target.value)}
+            onChange={(e) => setEvent(e.target.value)}
             style={inputStyle}
           />
 
@@ -130,7 +130,7 @@ export default function AddCertificate() {
           <input
             type="date"
             value={date}
-            onChange={(e)=>setDate(e.target.value)}
+            onChange={(e) => setDate(e.target.value)}
             style={inputStyle}
           />
 

@@ -10,7 +10,7 @@ export default function Dashboard() {
 
   useEffect(() => {
 
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/user`, {
+    fetch(`${import.meta.env.PROD ? "" : "http://localhost:5000"}/auth/user`, {
       credentials: "include"
     })
       .then(res => res.json())
@@ -102,8 +102,8 @@ export default function Dashboard() {
                 cursor: "pointer",
                 transition: "transform 0.2s ease"
               }}
-              onMouseEnter={(e)=>e.target.style.transform="translateY(-2px)"}
-              onMouseLeave={(e)=>e.target.style.transform="translateY(0)"}
+              onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
+              onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
             >
               Add Certificate
             </button>

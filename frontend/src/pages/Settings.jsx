@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar"
 export default function Settings() {
 
   const handleLogout = async () => {
-    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/logout`, {
+    await fetch(`${import.meta.env.PROD ? "" : "http://localhost:5000"}/auth/logout`, {
       credentials: "include"
     })
     window.location.href = "/"

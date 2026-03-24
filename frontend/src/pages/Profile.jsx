@@ -362,7 +362,7 @@ export default function Profile() {
       document.head.appendChild(styleEl)
     }
 
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/user`, {
+    fetch(`${import.meta.env.PROD ? "" : "http://localhost:5000"}/auth/user`, {
       credentials: "include"
     })
       .then(res => res.json())
@@ -394,7 +394,7 @@ export default function Profile() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/user/update`, {
+      const res = await fetch(`${import.meta.env.PROD ? "" : "http://localhost:5000"}/user/update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

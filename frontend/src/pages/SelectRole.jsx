@@ -8,7 +8,7 @@ export default function SelectRole() {
   const selectRole = async (role) => {
     try {
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/user/role`, {
+      const res = await fetch(`${import.meta.env.PROD ? "" : "http://localhost:5000"}/user/role`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

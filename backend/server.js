@@ -6,7 +6,7 @@ const mongoose = require("mongoose")
 const session = require("express-session")
 const MongoStore = require("connect-mongo").default
 const multer = require("multer")
-
+const path = require("path")
 
 const Certificate = require("./models/Certificate")
 const passport = require("./config/passport")
@@ -294,6 +294,15 @@ app.post("/user/update", async (req, res) => {
     res.status(500).json({ error: "Server error" })
   }
 })
+/* ---------------- SERVE FRONTEND (PRODUCTION) ---------------- */
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")))
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../frontend/dist", "index.html"))
+  })
+}
+
 /* ---------------- START SERVER ---------------- */
 
 const PORT = process.env.PORT || 5000
