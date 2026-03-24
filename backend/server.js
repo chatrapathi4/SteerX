@@ -4,6 +4,7 @@ const express = require("express")
 const cors = require("cors")
 const mongoose = require("mongoose")
 const session = require("express-session")
+const MongoStore = require("connect-mongo").default
 const multer = require("multer")
 
 
@@ -15,7 +16,7 @@ const Opportunity = require("./models/Opportunity")
 const upload = multer()
 const app = express()
 
-app.set("trust proxy", true)
+app.set("trust proxy", 1)
 
 /* ---------------- MIDDLEWARE ---------------- */
 
@@ -32,6 +33,7 @@ app.use(
     secret: "steerxsecret",
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
     cookie: {
       secure: process.env.NODE_ENV === "production", // ✅ required for production
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax" // ✅ important for cross-site cookies
@@ -45,12 +47,12 @@ app.use(passport.session())
 /* ---------------- DATABASE ---------------- */
 
 mongoose.connect(process.env.MONGO_URI)
-.then(()=> console.log("MongoDB connected"))
-.catch(err => console.log(err))
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.log(err))
 
 /* ---------------- TEST ROUTE ---------------- */
 
-app.get("/", (req,res)=>{
+app.get("/", (req, res) => {
   res.send("STEERX backend running")
 })
 
@@ -248,8 +250,8 @@ app.get("/opportunity/all", async (req, res) => {
         { expiresAt: { $gt: now } }
       ]
     })
-    .populate("postedBy", "name profileImage")
-    .sort({ createdAt: -1 })
+      .populate("postedBy", "name profileImage")
+      .sort({ createdAt: -1 })
 
     res.json(opportunities)
 
@@ -296,6 +298,6 @@ app.post("/user/update", async (req, res) => {
 
 const PORT = process.env.PORT || 5000
 
-app.listen(PORT, ()=>{
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
