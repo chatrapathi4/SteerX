@@ -42,7 +42,7 @@ export default function AddOpportunity() {
     try {
       setLoading(true)
 
-      const res = await fetch(`${import.meta.env.PROD ? "" : "http://localhost:5000"}/opportunity/add`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/opportunity/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

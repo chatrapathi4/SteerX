@@ -7,7 +7,7 @@ export default function Achievements() {
   const [selectedCert, setSelectedCert] = useState(null)
 
   useEffect(() => {
-    fetch(`${import.meta.env.PROD ? "" : "http://localhost:5000"}/certificate/user`, {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/certificate/user`, {
       credentials: "include"
     })
       .then(res => res.json())

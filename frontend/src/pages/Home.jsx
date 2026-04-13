@@ -6,7 +6,7 @@ export default function Home() {
   const [posts, setPosts] = useState([])
 
   useEffect(() => {
-    fetch(`${import.meta.env.PROD ? "" : "http://localhost:5000"}/opportunity/all`, {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/opportunity/all`, {
       credentials: "include"
     })
       .then(res => res.json())

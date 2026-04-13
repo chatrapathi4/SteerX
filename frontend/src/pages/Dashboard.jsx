@@ -10,7 +10,7 @@ export default function Dashboard() {
 
   useEffect(() => {
 
-    fetch(`${import.meta.env.PROD ? "" : "http://localhost:5000"}/auth/user`, {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/user`, {
       credentials: "include"
     })
       .then(res => res.json())
