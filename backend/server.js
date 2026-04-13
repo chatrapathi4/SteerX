@@ -113,8 +113,17 @@ app.get(
 )
 
 app.get("/auth/user", (req, res) => {
+  const isAuthenticated = req.isAuthenticated ? req.isAuthenticated() : false
 
-  if (req.user) {
+  console.log("AUTH USER CHECK", {
+    origin: req.headers.origin,
+    hasCookieHeader: Boolean(req.headers.cookie),
+    sessionId: req.sessionID,
+    isAuthenticated,
+    userId: req.user?._id || null
+  })
+
+  if (isAuthenticated && req.user) {
     res.json({
       loggedIn: true,
       user: req.user

@@ -9,11 +9,19 @@ export default function Dashboard() {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/user`, {
-      credentials: "include"
+      credentials: "include",
+      mode: "cors"
     })
-      .then(res => res.json())
+      .then(async (res) => {
+        const data = await res.json()
+        console.log("AUTH CHECK RESPONSE (Dashboard):", {
+          status: res.status,
+          ok: res.ok,
+          data
+        })
+        return data
+      })
       .then(data => {
 
         if (!data.loggedIn) {
@@ -30,7 +38,10 @@ export default function Dashboard() {
         }
 
       })
-      .catch(() => navigate("/login"))
+      .catch((err) => {
+        console.error("AUTH CHECK ERROR (Dashboard):", err)
+        navigate("/login")
+      })
 
   }, [])
 
