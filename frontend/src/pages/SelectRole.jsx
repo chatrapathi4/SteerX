@@ -1,19 +1,24 @@
+import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Nav from "../components/Navbar"
+import { getAuthHeaders, storeTokenFromUrl } from "../utils/auth"
 
 export default function SelectRole() {
 
   const navigate = useNavigate()
+
+  useEffect(() => {
+    storeTokenFromUrl()
+  }, [])
 
   const selectRole = async (role) => {
     try {
 
       const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/user/role`, {
         method: "POST",
-        headers: {
+        headers: getAuthHeaders({
           "Content-Type": "application/json"
-        },
-        credentials: "include",
+        }),
         body: JSON.stringify({ role })
       })
 

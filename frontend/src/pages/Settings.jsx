@@ -1,11 +1,13 @@
 import Navbar from "../components/Navbar"
+import { clearToken, getAuthHeaders } from "../utils/auth"
 
 export default function Settings() {
 
   const handleLogout = async () => {
     await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/logout`, {
-      credentials: "include"
+      headers: getAuthHeaders()
     })
+    clearToken()
     window.location.href = "/"
   }
 

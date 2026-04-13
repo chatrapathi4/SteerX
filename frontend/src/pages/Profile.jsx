@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import Navbar from "../components/Navbar"
+import { getAuthHeaders } from "../utils/auth"
 
 /* ── Inject fonts once ── */
 const injectFonts = () => {
@@ -363,7 +364,7 @@ export default function Profile() {
     }
 
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/user`, {
-      credentials: "include"
+      headers: getAuthHeaders()
     })
       .then(res => res.json())
       .then(data => {
@@ -396,10 +397,9 @@ export default function Profile() {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/user/update`, {
         method: "POST",
-        headers: {
+        headers: getAuthHeaders({
           "Content-Type": "application/json"
-        },
-        credentials: "include",
+        }),
         body: JSON.stringify({
           name,
           profileImage: image || user.profileImage,

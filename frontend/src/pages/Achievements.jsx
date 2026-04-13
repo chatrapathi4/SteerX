@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import Navbar from "../components/Navbar"
+import { getAuthHeaders } from "../utils/auth"
 
 export default function Achievements() {
 
@@ -8,7 +9,7 @@ export default function Achievements() {
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/certificate/user`, {
-      credentials: "include"
+      headers: getAuthHeaders()
     })
       .then(res => res.json())
       .then(data => {

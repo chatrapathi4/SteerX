@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { useState, useEffect } from "react"
+import { clearToken, getAuthHeaders } from "../utils/auth"
 
 export default function Navbar({ loggedIn = false }) {
 
@@ -10,7 +11,7 @@ export default function Navbar({ loggedIn = false }) {
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/user`, {
-      credentials: "include"
+      headers: getAuthHeaders()
     })
       .then(res => res.json())
       .then(data => {
@@ -23,9 +24,10 @@ export default function Navbar({ loggedIn = false }) {
   const logout = async () => {
     await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/logout`, {
       method: "GET",
-      credentials: "include"
+      headers: getAuthHeaders()
     })
 
+    clearToken()
     window.location.href = "/"
   }
 

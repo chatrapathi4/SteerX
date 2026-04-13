@@ -1,5 +1,6 @@
 import { useState } from "react"
 import Navbar from "../components/Navbar"
+import { getAuthHeaders } from "../utils/auth"
 
 export default function AddCertificate() {
 
@@ -45,7 +46,7 @@ export default function AddCertificate() {
       const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/certificate/add`, {
         method: "POST",
         body: formData,
-        credentials: "include"
+        headers: getAuthHeaders()
       })
 
       const data = await res.json()

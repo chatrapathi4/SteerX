@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import Navbar from "../components/Navbar"
+import { getAuthHeaders, storeTokenFromUrl } from "../utils/auth"
 
 export default function Dashboard() {
 
@@ -9,19 +10,12 @@ export default function Dashboard() {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
+    storeTokenFromUrl()
+
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/auth/user`, {
-      credentials: "include",
-      mode: "cors"
+      headers: getAuthHeaders()
     })
-      .then(async (res) => {
-        const data = await res.json()
-        console.log("AUTH CHECK RESPONSE (Dashboard):", {
-          status: res.status,
-          ok: res.ok,
-          data
-        })
-        return data
-      })
+      .then(res => res.json())
       .then(data => {
 
         if (!data.loggedIn) {
@@ -38,10 +32,7 @@ export default function Dashboard() {
         }
 
       })
-      .catch((err) => {
-        console.error("AUTH CHECK ERROR (Dashboard):", err)
-        navigate("/login")
-      })
+      .catch(() => navigate("/login"))
 
   }, [])
 

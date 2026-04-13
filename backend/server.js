@@ -3,6 +3,7 @@ require("dotenv").config()
 const express = require("express")
 const cors = require("cors")
 const mongoose = require("mongoose")
+const jwt = require("jsonwebtoken")
 const session = require("express-session")
 const MongoStore = require("connect-mongo").default
 const multer = require("multer")
@@ -27,6 +28,42 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:5173"
 ].filter(Boolean)
+
+const getTokenFromRequest = (req) => {
+  const authHeader = req.headers.authorization || ""
+  if (!authHeader.startsWith("Bearer ")) {
+    return null
+  }
+  return authHeader.slice(7)
+}
+
+const getUserFromToken = async (token) => {
+  if (!token || !process.env.JWT_SECRET) {
+    return null
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    if (!decoded?.id) {
+      return null
+    }
+    return await User.findById(decoded.id)
+  } catch {
+    return null
+  }
+}
+
+const requireAuth = async (req, res, next) => {
+  const token = getTokenFromRequest(req)
+  const user = await getUserFromToken(token)
+
+  if (!user) {
+    return res.status(401).json({ error: "Not authenticated" })
+  }
+
+  req.user = user
+  return next()
+}
 
 /* ---------------- MIDDLEWARE ---------------- */
 
@@ -87,25 +124,21 @@ app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
-    console.log("CALLBACK SESSION ID:", req.sessionID)
-    console.log("CALLBACK COOKIE:", req.headers.cookie)
-    console.log("CALLBACK USER:", req.user)
-    console.log("SESSION BEFORE SAVE:", req.session)
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).send("JWT secret not configured")
+    }
 
-    return req.session.save((err) => {
-      if (err) {
-        console.error("SESSION SAVE ERROR (GOOGLE):", err)
-        return res.status(500).send("Session save failed")
-      }
+    const token = jwt.sign(
+      { id: req.user._id, role: req.user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    )
 
-      console.log("SESSION AFTER SAVE:", req.session)
+    if (!req.user.role) {
+      return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role?token=${encodeURIComponent(token)}`)
+    }
 
-      if (!req.user.role) {
-        return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
-      }
-
-      return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard`)
-    })
+    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard?token=${encodeURIComponent(token)}`)
   }
 )
 
@@ -120,50 +153,32 @@ app.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/" }),
   (req, res) => {
-    console.log("CALLBACK SESSION ID:", req.sessionID)
-    console.log("CALLBACK COOKIE:", req.headers.cookie)
-    console.log("CALLBACK USER:", req.user)
-    console.log("SESSION BEFORE SAVE:", req.session)
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).send("JWT secret not configured")
+    }
 
-    return req.session.save((err) => {
-      if (err) {
-        console.error("SESSION SAVE ERROR (GITHUB):", err)
-        return res.status(500).send("Session save failed")
-      }
+    const token = jwt.sign(
+      { id: req.user._id, role: req.user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    )
 
-      console.log("SESSION AFTER SAVE:", req.session)
+    if (!req.user.role) {
+      return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role?token=${encodeURIComponent(token)}`)
+    }
 
-      if (!req.user.role) {
-        return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
-      }
-
-      return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard`)
-    })
+    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard?token=${encodeURIComponent(token)}`)
   }
 )
 
-app.get("/auth/user", (req, res) => {
-  console.log("AUTH CHECK SESSION ID:", req.sessionID)
-  console.log("AUTH CHECK COOKIE:", req.headers.cookie)
-  console.log("AUTH CHECK PASSPORT:", req.session?.passport)
-  console.log("AUTH CHECK USER:", req.user)
+app.get("/auth/user", async (req, res) => {
+  const token = getTokenFromRequest(req)
+  const user = await getUserFromToken(token)
 
-  console.log("SESSION PASSPORT:", req.session?.passport)
-  console.log("SESSION RAW:", req.session)
-
-  console.log("AUTH USER CHECK", {
-    origin: req.headers.origin,
-    cookie: req.headers.cookie,
-    sessionId: req.sessionID,
-    sessionPassport: req.session?.passport,
-    isAuthenticated: req.isAuthenticated?.(),
-    user: req.user
-  })
-
-  if (req.isAuthenticated?.() && req.user) {
+  if (user) {
     res.json({
       loggedIn: true,
-      user: req.user
+      user
     })
   } else {
     res.json({
@@ -175,7 +190,7 @@ app.get("/auth/user", (req, res) => {
 
 /* ---------------- SAVE USER ROLE ---------------- */
 
-app.post("/user/role", async (req, res) => {
+app.post("/user/role", requireAuth, async (req, res) => {
 
   try {
 
@@ -204,19 +219,12 @@ app.post("/user/role", async (req, res) => {
 })
 
 app.get("/auth/logout", (req, res) => {
-
-  req.logout(() => {
-    req.session.destroy(() => {
-      res.clearCookie("connect.sid")
-      res.json({ message: "Logged out" })
-    })
-  })
-
+  res.json({ message: "Logged out" })
 })
 
 /* ---------------- CERTIFICATE ROUTES ---------------- */
 
-app.post("/certificate/add", upload.single("image"), async (req, res) => {
+app.post("/certificate/add", requireAuth, upload.single("image"), async (req, res) => {
   try {
 
     if (!req.user) {
@@ -252,7 +260,7 @@ app.post("/certificate/add", upload.single("image"), async (req, res) => {
 })
 
 
-app.get("/certificate/user", async (req, res) => {
+app.get("/certificate/user", requireAuth, async (req, res) => {
   try {
 
     if (!req.user) {
@@ -273,7 +281,7 @@ app.get("/certificate/user", async (req, res) => {
 
 /* ---------------- OPPORTUNITY ROUTES ---------------- */
 
-app.post("/opportunity/add", async (req, res) => {
+app.post("/opportunity/add", requireAuth, async (req, res) => {
 
   try {
 
@@ -330,7 +338,7 @@ app.get("/opportunity/all", async (req, res) => {
 
 
 /* ---------------- UPDATE PROFILE ---------------- */
-app.post("/user/update", async (req, res) => {
+app.post("/user/update", requireAuth, async (req, res) => {
   try {
 
     if (!req.user) {

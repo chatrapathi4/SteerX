@@ -1,5 +1,6 @@
 import { useState } from "react"
 import Navbar from "../components/Navbar"
+import { getAuthHeaders } from "../utils/auth"
 
 export default function AddOpportunity() {
 
@@ -44,10 +45,9 @@ export default function AddOpportunity() {
 
       const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/opportunity/add`, {
         method: "POST",
-        headers: {
+        headers: getAuthHeaders({
           "Content-Type": "application/json"
-        },
-        credentials: "include",
+        }),
         body: JSON.stringify({
           title,
           description,
