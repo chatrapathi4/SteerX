@@ -90,10 +90,18 @@ app.get(
     console.log("CALLBACK USER (GOOGLE):", req.user)
     console.log("CALLBACK SESSION (GOOGLE):", req.session)
 
-    if (!req.user.role) {
-      return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
-    }
-    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard`)
+    return req.session.save((err) => {
+      if (err) {
+        console.error("SESSION SAVE ERROR (GOOGLE):", err)
+        return res.status(500).send("Session save failed")
+      }
+
+      if (!req.user.role) {
+        return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
+      }
+
+      return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard`)
+    })
   }
 )
 
@@ -111,10 +119,18 @@ app.get(
     console.log("CALLBACK USER (GITHUB):", req.user)
     console.log("CALLBACK SESSION (GITHUB):", req.session)
 
-    if (!req.user.role) {
-      return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
-    }
-    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard`)
+    return req.session.save((err) => {
+      if (err) {
+        console.error("SESSION SAVE ERROR (GITHUB):", err)
+        return res.status(500).send("Session save failed")
+      }
+
+      if (!req.user.role) {
+        return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
+      }
+
+      return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard`)
+    })
   }
 )
 
