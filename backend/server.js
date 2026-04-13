@@ -87,14 +87,18 @@ app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
-    console.log("CALLBACK USER (GOOGLE):", req.user)
-    console.log("CALLBACK SESSION (GOOGLE):", req.session)
+    console.log("CALLBACK SESSION ID:", req.sessionID)
+    console.log("CALLBACK COOKIE:", req.headers.cookie)
+    console.log("CALLBACK USER:", req.user)
+    console.log("SESSION BEFORE SAVE:", req.session)
 
     return req.session.save((err) => {
       if (err) {
         console.error("SESSION SAVE ERROR (GOOGLE):", err)
         return res.status(500).send("Session save failed")
       }
+
+      console.log("SESSION AFTER SAVE:", req.session)
 
       if (!req.user.role) {
         return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
@@ -116,14 +120,18 @@ app.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/" }),
   (req, res) => {
-    console.log("CALLBACK USER (GITHUB):", req.user)
-    console.log("CALLBACK SESSION (GITHUB):", req.session)
+    console.log("CALLBACK SESSION ID:", req.sessionID)
+    console.log("CALLBACK COOKIE:", req.headers.cookie)
+    console.log("CALLBACK USER:", req.user)
+    console.log("SESSION BEFORE SAVE:", req.session)
 
     return req.session.save((err) => {
       if (err) {
         console.error("SESSION SAVE ERROR (GITHUB):", err)
         return res.status(500).send("Session save failed")
       }
+
+      console.log("SESSION AFTER SAVE:", req.session)
 
       if (!req.user.role) {
         return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
@@ -135,6 +143,14 @@ app.get(
 )
 
 app.get("/auth/user", (req, res) => {
+  console.log("AUTH CHECK SESSION ID:", req.sessionID)
+  console.log("AUTH CHECK COOKIE:", req.headers.cookie)
+  console.log("AUTH CHECK PASSPORT:", req.session?.passport)
+  console.log("AUTH CHECK USER:", req.user)
+
+  console.log("SESSION PASSPORT:", req.session?.passport)
+  console.log("SESSION RAW:", req.session)
+
   console.log("AUTH USER CHECK", {
     origin: req.headers.origin,
     cookie: req.headers.cookie,
