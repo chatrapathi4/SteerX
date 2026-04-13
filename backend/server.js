@@ -87,6 +87,9 @@ app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
+    console.log("CALLBACK USER (GOOGLE):", req.user)
+    console.log("CALLBACK SESSION (GOOGLE):", req.session)
+
     if (!req.user.role) {
       return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
     }
@@ -105,6 +108,9 @@ app.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/" }),
   (req, res) => {
+    console.log("CALLBACK USER (GITHUB):", req.user)
+    console.log("CALLBACK SESSION (GITHUB):", req.session)
+
     if (!req.user.role) {
       return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/select-role`)
     }
@@ -113,17 +119,16 @@ app.get(
 )
 
 app.get("/auth/user", (req, res) => {
-  const isAuthenticated = req.isAuthenticated ? req.isAuthenticated() : false
-
   console.log("AUTH USER CHECK", {
     origin: req.headers.origin,
-    hasCookieHeader: Boolean(req.headers.cookie),
+    cookie: req.headers.cookie,
     sessionId: req.sessionID,
-    isAuthenticated,
-    userId: req.user?._id || null
+    sessionPassport: req.session?.passport,
+    isAuthenticated: req.isAuthenticated?.(),
+    user: req.user
   })
 
-  if (isAuthenticated && req.user) {
+  if (req.isAuthenticated?.() && req.user) {
     res.json({
       loggedIn: true,
       user: req.user
