@@ -18,25 +18,45 @@ const app = express()
 
 app.set("trust proxy", 1)
 
+const isProduction =
+  process.env.NODE_ENV === "production" ||
+  process.env.RENDER === "true" ||
+  Boolean(process.env.RENDER_EXTERNAL_URL)
+
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173"
+].filter(Boolean)
+
 /* ---------------- MIDDLEWARE ---------------- */
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
-  credentials: true
-}))
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true)
+      }
+      return callback(new Error("Not allowed by CORS"))
+    },
+    credentials: true
+  })
+)
 
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ limit: "10mb", extended: true }))
 
 app.use(
   session({
-    secret: "steerxsecret",
+    secret: process.env.SESSION_SECRET || "steerxsecret",
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
     cookie: {
-      secure: process.env.NODE_ENV === "production", // ✅ required for production
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax" // ✅ important for cross-site cookies
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 7
     }
   })
 )
